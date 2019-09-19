@@ -1,0 +1,105 @@
+	
+	#searchBookResultsTableHeader 
+	{
+		visibility: collapse;
+	}
+	  
+	.bookMenu
+	{
+		/* background-color:yellow; */
+		width: 25%;
+		float:left;
+		
+	}
+	
+	.bookMenu input
+	{
+		margin:2%;
+		width:50%;
+		
+	}
+	 
+	.accountMenu
+	{
+		/* background-color:orange; */
+		width:75%;
+		float:right;
+	}
+	
+	.accountMenu div
+	{
+		float:right;
+		margin-left:1%;
+		margin-right:1%;
+	}
+	
+		
+	.search
+	{
+		/* background-color:green; */
+		width: 100%;
+		padding:2%;
+		padding-left:20%;
+		float: left;
+	}
+	
+	#searchBookBox
+	{
+		
+		padding:1%;
+		width:35%;
+		margin-top:0;	
+	}
+	
+	#searchBookButton{
+		margin-top:1%;
+		padding:1%;
+		margin-left:15%;
+	}
+	
+	.output
+	{
+		/*background-color:red; */
+		width: 100%;
+		float: left;
+		padding-left:30%;
+		padding-right:10%;
+	}
+	
+	#searchBooksResults
+	{
+		/* background-color:gray; */
+		width: 100%;
+		float: left;
+		padding-left:5%;
+		padding-right:10%;
+	}
+	
+	#confirmationButtonBox {
+		padding-left:4%;
+		visibility:hidden;
+	}
+	
+	#confirmationButtonBox button{
+		padding:1%;
+	}
+	
+	h1{
+		margin-left:30%;
+	}
+	
+	#confirmationButtonBox input {
+		
+	}
+	
+	
+	
+	
+	
+	
+		
+		
+	
+	
+	 
+	 

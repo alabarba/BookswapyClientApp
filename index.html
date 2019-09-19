@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Home page</title>
+	
+	<link rel="stylesheet" type="text/css" href="general.css">
+	<link rel="stylesheet" type="text/css" href="index.css">
+	
+    
+	<script src="./globalConfig.js"></script>
+  </head>
+
+  <body>
+		<h1>Bookswapy</h1>
+		<div class="bookMenu" >
+		  <input type="submit" value="Add Book" class="menuButton" id="addBookButton"></br>
+		  <input type="submit" value="My Books" class="menuButton" id="seeBooksButton"></br>
+		  <input type="submit" value="Swaps" class="menuButton" id="seeSwapsButton"></br>
+		</div>
+	
+		<div class="accountMenu" >
+			<div class="mail">
+				<img> 
+				<!-- add mail icon -->
+				</img>
+			</div>
+			<div class="balance">
+				<a href="myBalance.html">Balance</a>
+			</div>
+			<div class="account">
+				<a href="myAccount.html">Account</a>
+			</div>
+			<div class="logout">
+				<a href="login.html">Logout</a>
+			</div>
+		</div>
+	
+	
+	<div class="search">
+      <input type="text" value="Search a book by title" class="searchBox" id="searchBookBox"></br>
+	  <input type="submit" value="Search" class="menuButton" id="searchBookButton">
+    </div>
+	
+	<div id="searchBooksResults">
+			<table id="searchBookResultsTable">
+				<tr id="searchBookResultsTableHeader" >
+				<th></th>
+				<th>ISBN</th>
+				<th>Title</th>
+				<th>Author</th>
+				<th>Publisher</th>
+				<th>Genre</th>
+				<th>Year</th>
+				<th>Status</th>
+				<th>Borrower</th>
+				<th>City</th>
+				<th>Region</th>
+				<th>State</th>
+				<th>Deadline</th>
+				</tr>				
+			</table>	
+		</div>
+	<div class="output">
+			<p id="outputMessage"></p>
+			<div id="confirmationButtonBox">
+			</div>
+		</div>
+	<script>
+	document.addEventListener("DOMContentLoaded", function() {
+      const addBookButton = document.querySelector('#addBookButton');
+      const seeBooksButton = document.querySelector('#seeBooksButton');
+	  const seeSwapsButton = document.querySelector('#seeSwapsButton');
+	  
+	  addBookButton.addEventListener("click",function(){location.assign("./createBook.html");});
+	  seeBooksButton.addEventListener("click",function(){location.assign("./myBooks.html");});
+	  seeSwapsButton.addEventListener("click",function(){location.assign("./swaps.html");});
+	  
+	  // remove the content of search field when clicking on it
+	  document.querySelector('#searchBookBox').addEventListener("click",function(){
+	  this.value="";
+	  document.querySelector('#searchBookBox').style.opacity="1";
+	  document.querySelector('#searchBookBox').style.fontStyle="normal";
+	  });
+    
+	  // adding dynamic behavior associated to pressing Search button
+	  document.querySelector('#searchBookButton').addEventListener("click", async function(){
+		
+		// Make the table header invisible (in case it had beeen made visibible by a previous search)
+		document.querySelector('#searchBookResultsTableHeader').style.visibility="collapse";
+		
+		//remove button clear results (in case button was there because of  a previous search)
+		//todo
+		
+		// remove previous search results if any (starts at 1 because 0 is for the table header)
+		while(document.querySelector('#searchBookResultsTable').getElementsByTagName("tr").length > 1){
+			// window.alert("length of table: " + document.querySelector('#searchBookResultsTable').getElementsByTagName("tr").length);
+			document.querySelector('#searchBookResultsTable').deleteRow(document.querySelector('#searchBookResultsTable').getElementsByTagName("tr").length -1);
+		}
+		
+		
+		// Disable the form and the button
+		document.querySelector('#searchBookBox').disabled=true;
+		document.querySelector('#searchBookButton').disabled=true;
+		
+		// display in progress message
+		document.querySelector('#outputMessage').textContent="Please wait, search in progress..";
+		
+		//Call API to get all books 
+		const response= await fetch('http://' + ip + ':8000/lending/getParticipantBooks/alabarba')
+		const json = await response.json();
+		
+		console.log("response status= " + response.status + " response type: " + typeof(response));
+			if (response.status===200){
+				// Re enable form and button 
+				document.querySelector('#searchBookBox').disabled=false;
+				document.querySelector('#searchBookButton').disabled=false;
+				// remove in progress message
+				document.querySelector('#outputMessage').textContent="";
+				}				
+			else {
+			// else display an error message
+				document.querySelector('#outputMessage').textContent="Ooops there was an error while searching";
+				return;}
+	  
+		console.log(JSON.stringify(json));
+		// from string to Json
+		let booksMetadata= JSON.parse(JSON.stringify(json));
+			//values.push(json);
+		console.log(typeof(JSON.stringify(json)));
+		console.log(typeof(JSON.parse(JSON.stringify(json))));
+			
+		//window.alert("booksMetadata: " + booksMetadata[1]["_year"]);
+		
+		let matchFound=false;
+		
+		for (i=0; i<booksMetadata.length; i++){
+			let title=booksMetadata[i]["_title"];
+			// console.log("title type is: " + typeof(title) + " search content type is: " + typeof(document.querySelector('#searchBookBox').value));
+			if ( title.toLowerCase().includes(document.querySelector('#searchBookBox').value.toLowerCase())){
+				matchFound=true;
+								
+				// Make the table header visible
+				document.querySelector('#searchBookResultsTableHeader').style.visibility="visible";
+			
+				//window.alert("cicle number: " + i );
+				// console.log(booksMetadata[i]["title"]);	
+				let isbn=booksMetadata[i]["_isbn"];
+				let author=booksMetadata[i]["_author"];
+				let publisher=booksMetadata[i]["_publisher"];
+				let genre=booksMetadata[i]["_genre"];
+				let year=booksMetadata[i]["_year"];
+				//console.log("Year is: " + booksMetadata[i]["year"]);
+				// console.log("Status is: " + booksMetadata[i]["status"]);
+					
+				let string="<td><input type='submit' id=" + "'" + i +"'" + " value='Request book' onclick=" + '"' + "borrowBook(" + "'" + i + "'" + "," + "'" + isbn + "'" + "," + "'" + title + "'" + "," + "'" + author + "'" + "," + "'" + publisher + "'" + "," + "'" + genre + "'" + "," + "'" + year + "'" + ")"+ '"'+ "></td><td>" + booksMetadata[i]["_isbn"] + "</td><td>" + booksMetadata[i]["_title"] + "</td><td>" + booksMetadata[i]["_author"] + "</td><td>" + booksMetadata[i]["_publisher"] + "</td><td>" + booksMetadata[i]["_genre"] + "</td><td>" + booksMetadata[i]["_year"] + "</td><td>" + booksMetadata[i]["_status"] + "</td><td>" + booksMetadata[i]["_borrower"] + "</td><td>" + booksMetadata[i]["_city"] + "</td><td>" + booksMetadata[i]["_region"] + "</td><td>" + booksMetadata[i]["_state"]+ "</td><td>" + booksMetadata[i]["_deadline"]+ "</td>"
+				
+				// window.alert(string);
+
+				let newTableRow=document.createElement("tr");
+				// let newDataRow=document.createElement("td");
+				newTableRow.innerHTML=string;
+				document.querySelector('#searchBookResultsTable').appendChild(newTableRow);
+				// window.alert("match found")
+				
+			}
+			
+			//window.alert("you searched: " + document.querySelector('#searchBookBox').value.toLowerCase() + " instead title of current book is" + title.toLowerCase());
+			
+			// window.alert("matchFound: " + matchFound);
+			
+			}
+			document.querySelector('#confirmationButtonBox').innerHTML="<input type='submit' onclick='location.reload()' value='Clear results' class='confirmationButtons'>";
+			
+			if (matchFound===false)
+			{
+				//window.alert("match not found")
+			document.querySelector('#outputMessage').textContent="Sorry, no matching found";}
+			
+	  
+	  });
+	  
+	  
+	});
+  
+  </script>
+  </body>
+  
+</html>

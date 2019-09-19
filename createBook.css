@@ -1,0 +1,63 @@
+.form{
+	width:90%;
+	margin-top: 4%;
+    margin-left: 10%;
+	/* background-color:green; */
+	float:left;
+}
+	
+.form input{
+	width:30%;
+	
+
+}
+.confirmationButtons{
+	width:90%;
+    margin-left: 8%;
+	/* background-color:pink; */
+	float:left;
+
+}
+
+.confirmationButtons input{
+	width:10%;
+	padding:1%;
+	margin-top: 3%;
+    margin-left: 3%;
+
+}
+
+label {
+    width:7%;
+    clear:left;
+    text-align:left;
+    padding-right:4%;
+}
+
+input, label {
+    float:left;
+	
+}
+
+.output{
+	width:90%;
+    margin-left: 12%;
+	/*background-color:pink; */
+	float:left;
+
+}
+
+#confirmationBox{
+	width:90%;
+    margin-left: 0%;
+	/*background-color:pink; */
+	float:left;
+
+}
+
+#confirmationBox input{
+	width:23%;
+	padding:1%;
+	margin-left:1%;
+
+}

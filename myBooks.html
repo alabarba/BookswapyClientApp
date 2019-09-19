@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>My books</title>
+	
+	
+	<link rel="stylesheet" type="text/css" href="general.css">
+	<link rel="stylesheet" type="text/css" href="myBooks.css">
+    
+	<script src="./globalConfig.js"></script>
+	<script>
+		function backToHomePage(){location.assign("./index.html");}
+		
+		function editBook(i,isbn,title,author,publisher,genre,year){
+		// set a session storage to remember the index of the book we want to edit
+		sessionStorage.setItem('editedBookId', i);
+		
+		// go to update book page
+		let newPage=location.replace("./updateBook.html");
+		
+		}		
+	</script>
+  </head>
+
+  <body>
+    <h1>My Books</h1>
+	<div id="myBooks">
+			<table id="searchMyBookTable">
+				<tr id="myBooksTableHeader">
+					<th></th>
+					<th></th>
+					<th>ISBN</th>
+					<th>Title</th>
+					<th>Author</th>
+					<th>Publisher</th>
+					<th>Genre</th>
+					<th>Year</th>
+					<th>Status</th>
+					<th>Borrower</th>
+					<th>City</th>
+					<th>Region</th>
+					<th>State</th>
+					<th>Deadline</th>
+					
+				</tr>				
+			</table>	
+		</div>
+		<div class="output">
+			<p id="outputMessage"></p>
+			<div id="confirmationButtonBox">
+				<input type='submit' onclick='reloadPage()' value='Delete' class='confirmationButtons'>
+				<input type='submit' onclick='backToHomePage()' value='Back to Home Page' class='confirmationButtons'>
+			</div>
+		</div>
+		
+		<script>
+  
+			document.addEventListener("DOMContentLoaded", async function() {
+			// Make the table header invisible (in case it had beeen made visibible by a previous search)
+			document.querySelector('#myBooksTableHeader').style.visibility="collapse";
+			
+			// display in progress message
+			document.querySelector('#outputMessage').textContent="Please wait, we are loading the books..";
+			
+			//will be used to append data (obtained through API call) to the table
+			const bookTable = document.querySelector('#searchMyBookTable');
+			
+			// variable values will be used to populate a session storage so edit page can fill in properly the edit form
+			let values=new Array;
+			
+			// call API
+			const response= await fetch('http://' + ip + ':8000/lending/getParticipantBooks/alabarba')
+			const json = await response.json();
+			
+			console.log("response status= " + response.status + " response type: " + typeof(response));
+			if (response.status===200){
+			// if response OK, remove the in progress message
+				document.querySelector('#outputMessage').textContent="";}
+			else{
+			// else display an error message
+				document.querySelector('#outputMessage').textContent="Ooops there was an error while displaying your books";}
+				
+			
+			console.log(JSON.stringify(json));
+			// from string to Json
+			let booksMetadata= JSON.parse(JSON.stringify(json));
+			
+			//console.log(typeof(JSON.stringify(json)));
+			//console.log(typeof(JSON.parse(JSON.stringify(json))));
+			
+			//window.alert("booksMetadata: " + booksMetadata[1]["_year"]);
+			
+			// Make the table header visible
+			document.querySelector('#myBooksTableHeader').style.visibility="visible";
+			
+			for (i=0; i<booksMetadata.length; i++){
+			//window.alert("cicle number: " + i );
+				console.log(booksMetadata[i]["_title"]);	
+				let isbn=booksMetadata[i]["_isbn"];
+				let title=booksMetadata[i]["_title"];
+				let author=booksMetadata[i]["_author"];
+				let publisher=booksMetadata[i]["_publisher"];
+				let genre=booksMetadata[i]["_genre"];
+				let year=booksMetadata[i]["_year"];
+				// console.log("Year is: " + booksMetadata[i]["_year"]);
+				// console.log("Status is: " + booksMetadata[i]["_status"]);
+				
+				// populating values array 
+				values.push(isbn);
+				values.push(title);
+				values.push(author);
+				values.push(publisher);
+				values.push(genre);		
+				values.push(year);
+				
+				// creating string to append to the table				
+				let string="<td><input type='checkbox'></td><td><input type='submit' id=" + "'" + i +"'" + " value='Edit' onclick=" + '"' + "editBook(" + "'" + i + "'" + "," + "'" + isbn + "'" + "," + "'" + title + "'" + "," + "'" + author + "'" + "," + "'" + publisher + "'" + "," + "'" + genre + "'" + "," + "'" + year + "'" + ")"+ '"'+ "></td><td>" + booksMetadata[i]["_isbn"] + "</td><td>" + booksMetadata[i]["_title"] + "</td><td>" + booksMetadata[i]["_author"] + "</td><td>" + booksMetadata[i]["_publisher"] + "</td><td>" + booksMetadata[i]["_genre"] + "</td><td>" + booksMetadata[i]["_year"] + "</td><td>" + booksMetadata[i]["_status"] + "</td><td>" + booksMetadata[i]["_borrower"] + "</td><td>" + booksMetadata[i]["_city"] + "</td><td>" + booksMetadata[i]["_region"] + "</td><td>" + booksMetadata[i]["_state"]+ "</td><td>" + booksMetadata[i]["_deadline"]+ "</td>"
+				
+				
+				// window.alert(string);
+
+				let newTableRow=document.createElement("tr");
+				// let newDataRow=document.createElement("td");
+				newTableRow.innerHTML=string;
+				bookTable.appendChild(newTableRow);
+				
+				//make the confirmationButtonBox buttons visible
+				document.querySelector('#confirmationButtonBox').style.visibility="visible"
+			}
+			
+			// setting session storage variable
+			sessionStorage.setItem('allValues', JSON.stringify(values));
+			
+			});
+		</script>
+  </body>
+</html>

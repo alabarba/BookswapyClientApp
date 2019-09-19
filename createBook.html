@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Create book</title>
+	
+	<link rel="stylesheet" type="text/css" href="general.css">
+	<link rel="stylesheet" type="text/css" href="createBook.css">
+    
+	<script src="./globalConfig.js"></script>
+	<script>
+		function backToHomePage(){location.assign("./index.html");}
+		function reloadPage(){location.assign("./createBook.html");}
+	</script>
+  </head>
+
+  <body>
+    
+
+    <div class="form">
+      <label for="bookIsbn">ISBN*</label><input type="text" id="bookIsbn" class="bookMetadata"><br>
+	  <label for="bookTitle">Title*</label><input type="text" id="bookTitle" class="bookMetadata"><br>
+	  <label for="bookAuthor">Author*</label><input type="text" id="bookAuthor" class="bookMetadata"><br>
+	  <label for="bookPublisher">Publisher*</label><input type="text" id="bookPublisher" class="bookMetadata"><br>
+	  <label for="bookGenre">Genre*</label><input type="text" id="bookGenre" class="bookMetadata"><br>
+	  <label for="bookYear">Year*</label><input type="text" id="bookYear" class="bookMetadata"><br>
+    </div>
+	<div class="confirmationButtons">
+	  <input type="submit" value="Save" class="confirmationButtons" id="saveButton">
+	  <input type="submit" value="Cancel" class="confirmationButtons" id="cancelButton">
+    </div>
+	<div class="output">
+		<p id="outputMessage"></p>
+		<div id="confirmationBox">
+		
+		</div>
+	</div>
+
+ 
+
+    <script>
+  
+	document.addEventListener("DOMContentLoaded", function() {
+      const saveButton = document.querySelector('#saveButton');
+      const cancelButton = document.querySelector('#cancelButton');
+	  
+	  
+	  saveButton.addEventListener("click", async function(){
+		if (document.querySelector('#bookIsbn').value==="" || document.querySelector('#bookTitle').value==="" || document.querySelector('#bookAuthor').value==="" || document.querySelector('#bookPublisher').value==="" || document.querySelector('#bookGenre').value==="" || document.querySelector('#bookYear').value===""){
+		// display error message all fields are mandatory
+			document.querySelector('#outputMessage').textContent="All fields are mandatory";
+		}
+		else {
+			// Prepare JSON for the body of the post
+			let data={"ownerId":"alabarba", "isbn":document.querySelector('#bookIsbn').value, "title":document.querySelector('#bookTitle').value, "author":document.querySelector('#bookAuthor').value, "publisher":document.querySelector('#bookPublisher').value, "genre":document.querySelector('#bookGenre').value, "year":document.querySelector('#bookYear').value}
+			
+			// Disable the form
+			document.querySelectorAll('.bookMetadata');
+			for (let i=0; i< document.querySelectorAll('.bookMetadata').length; i++){
+			document.querySelectorAll('.bookMetadata')[i].disabled=true;}
+			
+			// remove confirmation buttons
+			while(document.querySelectorAll('.confirmationButtons')[0]){document.querySelectorAll('.confirmationButtons')[0].remove();};
+			
+			// display in progress message
+			document.querySelector('#outputMessage').textContent="Please wait, we are creating the book.."; 
+			
+			//Call API to create book 
+			const response = await fetch('http://' + ip + ':8000/lending/createBook', {
+				method: 'POST',
+				headers: {'Content-Type' : 'application/json'},
+				body: JSON.stringify(data)
+			});
+			
+			console.log("response status= " + response.status + " response type: " + typeof(response));
+				if (response.status===200){
+					// Add confirmation message
+					document.querySelector('#outputMessage').textContent="Book created succesfully. Do you want to create another book?";}
+				else{
+				// else display an error message
+					document.querySelector('#outputMessage').textContent="Ooops there was an error while editing the book";}
+					
+			
+			
+			// Add buttons to come back to home page or create another book
+			document.querySelector('#confirmationBox').innerHTML="<input type='submit' onclick='reloadPage()' value='Create Book' class='confirmationButtons' id='createButton'><input type='submit' onclick='backToHomePage()' value='Back to Home Page' class='confirmationButtons' id='homePageButton'>";
+		}
+		}); 
+	  
+	  cancelButton.addEventListener("click", function(){location.assign("./index.html");});
+	  
+	  
+	  
+	});
+	
+    </script>
+  </body>
+</html>

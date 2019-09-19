@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Update book</title>
+	
+	<link rel="stylesheet" type="text/css" href="general.css">
+	<link rel="stylesheet" type="text/css" href="updateBook.css">
+    
+	<script src="./globalConfig.js"></script>
+	<script>
+		function backToMyBooksPage(){location.assign("./myBooks.html");}
+		function reloadPage(){location.assign("./createBook.html");}
+	</script>
+  </head>
+
+  <body>
+    
+
+    <div class="editForm">
+      <label for="bookIsbn">ISBN</label><input type="text" disabled="true" id="bookIsbn" class="bookMetadata"><br>
+	  <label for="bookTitle">Title*</label><input type="text" id="bookTitle" class="bookMetadata"><br>
+	  <label for="bookAuthor">Author*</label><input type="text" id="bookAuthor" class="bookMetadata"><br>
+	  <label for="bookPublisher">Publisher*</label><input type="text" id="bookPublisher" class="bookMetadata"><br>
+	  <label for="bookGenre">Genre*</label><input type="text" id="bookGenre" class="bookMetadata"><br>
+	  <label for="bookYear">Year*</label><input type="text" id="bookYear" class="bookMetadata"><br>
+	</div>
+	<div class="confirmationButtons">
+      <input type="submit" value="Confirm" class="confirmationButtons" id="saveButton">
+	  <input type="submit" value="Discard" class="confirmationButtons" id="cancelButton">
+    </div>
+	<div class="output">
+		<p id="outputMessage"></p>
+		<div id="confirmationBox">
+		
+		</div>
+	</div>
+
+ 
+
+    <script>
+	// When the page loads do:
+	document.addEventListener("DOMContentLoaded", function() {
+      const saveButton = document.querySelector('#saveButton');
+      const cancelButton = document.querySelector('#cancelButton');	  
+	  
+	  // retrieve the index of the book that the user wants to modify
+	  let editedBookId = sessionStorage.getItem('editedBookId');
+	  
+	  //retrieve the value of sessionStorage where are stored all the booksMetadata (as string)
+	  let json=sessionStorage.getItem('allValues');
+	  
+	  //deserialize in order to get back Json
+	  let booksMetadata= JSON.parse(JSON.stringify(json));
+	  
+	  console.log(JSON.parse(sessionStorage.getItem('allValues')));
+	  
+	  //set the value of the edit page fields equal to the metadata of the books which the user wants to modify
+	  document.querySelector('#bookIsbn').value = JSON.parse(sessionStorage.getItem('allValues'))[editedBookId*6];
+	  document.querySelector('#bookTitle').value = JSON.parse(sessionStorage.getItem('allValues'))[((parseInt(editedBookId))*6) + 1];
+	  document.querySelector('#bookAuthor').value = JSON.parse(sessionStorage.getItem('allValues'))[((parseInt(editedBookId))*6) + 2];
+	  document.querySelector('#bookPublisher').value = JSON.parse(sessionStorage.getItem('allValues'))[((parseInt(editedBookId))*6) + 3];
+	  document.querySelector('#bookGenre').value = JSON.parse(sessionStorage.getItem('allValues'))[((parseInt(editedBookId))*6) + 4];
+	  document.querySelector('#bookYear').value = JSON.parse(sessionStorage.getItem('allValues'))[((parseInt(editedBookId))*6) + 5];
+	  console.log(document.querySelector('#bookYear').value);
+	  
+	  // When user clicks on save button do:
+	  saveButton.addEventListener("click", async function(){
+		
+		// Disable the form
+		document.querySelectorAll('.bookMetadata');
+		for (let i=0; i< document.querySelectorAll('.bookMetadata').length; i++){
+		document.querySelectorAll('.bookMetadata')[i].disabled=true;}
+		
+		//Remove the confirmation buttons 
+		while(document.querySelectorAll('.confirmationButtons')[0]){document.querySelectorAll('.confirmationButtons')[0].remove();};
+		
+		// display in progress message
+		document.querySelector('#outputMessage').textContent="Please wait, we are editing the book..";
+		
+		// Call API to update book passing the values that the user has written inside the edit form
+		let response= await updateBook(document.querySelector('#bookIsbn').value, document.querySelector('#bookTitle').value, document.querySelector('#bookAuthor').value, document.querySelector('#bookPublisher').value, document.querySelector('#bookGenre').value, document.querySelector('#bookYear').value);
+	
+		console.log("response= " + response + " response type: " + typeof(response));
+		if (response===200){
+		// if response OK, display a confirmation message
+		document.querySelector('#outputMessage').textContent="Book edited succesfully.";}
+		else{
+		// else display an error message
+		document.querySelector('#outputMessage').textContent="Ooops there was an error while editing the book";}
+		
+		// add the two buttons to create another book or come back to myBooks page
+		document.querySelector('#confirmationBox').innerHTML="<input type='submit' onclick='backToMyBooksPage()' value='Back to myBooks Page' class='confirmationButtons' id='MyBooksPageButton'>";
+		}); 
+	  
+	  cancelButton.addEventListener("click", function(){location.assign("./myBooks.html");});
+	  
+	  
+	  
+	});
+	
+	const updateBook = async (isbn, title, author, publisher, genre, year) =>  {		
+		let data={"isbn":isbn, "title":title, "author":author, "publisher":publisher, "genre":genre, "year":year}	
+		const response = await fetch('http://' + ip + ':8000/lending/updateBook', {
+			method: 'POST',
+			headers: {'Content-Type' : 'application/json'},
+			body: JSON.stringify(data)
+		
+		});
+		console.log(response.status);
+		return response.status;
+	}
+    </script>
+  </body>
+</html>
